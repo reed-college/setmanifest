@@ -7,6 +7,7 @@ import argparse
 from urllib2 import Request, urlopen, URLError
 from munkilib import FoundationPlist
 from munkilib import munkicommon
+import subprocess
 
 parser = argparse.ArgumentParser(description='setManifest.py')
 parser.add_argument('-v','--verbose', help='Run script in verbose mode.', action='store_true')
@@ -25,11 +26,31 @@ else:
 
 def createAndPrintManifestChoicesDict(file):
     choices = file.readlines()
+    ###separates the textfile line by line into a list so that I can add the user shortname to it
+    test = []
+    for item in choices:
+        test = test + [item]
+    ###appends shortname to the list
+    account = subprocess.Popen(['users'],shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = account.communicate()
+    
+    ##should address issues if user is logged into multiple accounts
+    if " " in out:
+        out = out.split(" ")
+        
+        for item in out:
+             
+            if '\n' in item:
+                item = item.replace("\n","")
+            test.append(item)         
+    else:
+        test.append(out)
+
 
     i = 1
     choicesDict = {}
     
-    for line in choices:
+    for line in test:
         if line == '-\n':
             print '-'
             continue
@@ -50,6 +71,8 @@ verboseprint('**************Verbose Mode*************')
 if os.getuid() != 0:
     print 'You must run this as root.'
     sys.exit(0)
+
+
 
 # get manifestChoices.txt from the server 
 verboseprint('****INFO**** attempting to fetch inputfile')
@@ -101,3 +124,4 @@ else:
     sys.exit(0)
 
 #END
+
