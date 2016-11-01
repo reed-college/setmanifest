@@ -42,7 +42,10 @@ def createAndPrintManifestChoicesDict(file):
              
             if '\n' in item:
                 item = item.replace("\n","")
-            test.append(item)         
+            #removes _msetupuser from list 
+            if "_mbsetupuser" not in item:
+                test.append(item)  
+                  
     else:
         test.append(out)
 
